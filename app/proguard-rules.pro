@@ -20,27 +20,28 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+### Retrofit
+
 # Retain generic type information for use by reflection by converters and adapters.
 -keepattributes Signature
-
--keep @com.squareup.moshi.JsonQualifier interface *
 
 # Retain service method parameters when optimizing.
 -keepclassmembers,allowshrinking,allowobfuscation interface * {
     @retrofit2.http.* <methods>;
 }
--keepclassmembers class kotlin.Metadata {
-    public <methods>;
-}
+
+### Moshi
 
 -keepclasseswithmembers class * {
     @com.squareup.moshi.* <methods>;
 }
 
-# Ignore annotation used for build tooling.
--dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
-# Ignore JSR 305 annotations for embedding nullability information.
--dontwarn javax.annotation.**
--dontwarn okio.**
+-keep @com.squareup.moshi.JsonQualifier interface *
 
+# Moshi Kotlin Codegen
 
+-keep class **JsonAdapter {
+    <init>(...);
+    <fields>;
+}
+-keepnames @com.squareup.moshi.JsonClass class *

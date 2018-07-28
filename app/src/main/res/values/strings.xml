@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Adyensquare</string>
+    <string name="app_name">AdyenSquare</string>
+    <string name="location_rationale">We need your location to suggest cool venues nearby!</string>
+    <string name="exploring_toast">Exploring…</string>
 </resources>
