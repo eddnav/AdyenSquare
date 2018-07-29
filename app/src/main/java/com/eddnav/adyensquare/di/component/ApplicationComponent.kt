@@ -6,7 +6,7 @@ import com.eddnav.adyensquare.di.module.LocationModule
 import com.eddnav.adyensquare.di.module.RemoteModule
 import com.eddnav.adyensquare.di.module.ViewModelModule
 import com.eddnav.adyensquare.di.scope.Application
-import com.eddnav.adyensquare.view.MainActivity
+import com.eddnav.adyensquare.view.ExploreFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -17,7 +17,7 @@ import dagger.Component
 @Component(modules = [ApplicationModule::class, RemoteModule::class, LocationModule::class, ViewModelModule::class])
 interface ApplicationComponent {
 
-    fun inject(activity: MainActivity)
+    fun inject(fragment: ExploreFragment)
 
     @Component.Builder
     interface Builder {

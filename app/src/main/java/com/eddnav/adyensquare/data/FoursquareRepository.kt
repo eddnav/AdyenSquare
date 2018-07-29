@@ -1,5 +1,6 @@
 package com.eddnav.adyensquare.data
 
+import com.eddnav.adyensquare.data.model.Exploration
 import com.eddnav.adyensquare.data.model.Venue
 import com.eddnav.adyensquare.remote.FoursquareService
 import com.eddnav.adyensquare.remote.mapper.RemoteMapper
@@ -13,19 +14,18 @@ import javax.inject.Inject
  */
 class FoursquareRepository @Inject constructor(private val api: FoursquareService) {
 
-    private var formatter = DecimalFormat("#.#######################")
+    private var formatter = DecimalFormat("#.#######################").apply {
 
-    init {
-        // Force . to be the decimal separator regardless of the locale.
+        // Force '.' to be the decimal separator regardless of the locale.
         val symbols = DecimalFormatSymbols()
         symbols.decimalSeparator = '.'
         symbols.groupingSeparator = ','
 
-        formatter.decimalFormatSymbols = symbols
+        this.decimalFormatSymbols = symbols
     }
 
 
-    fun getVenuesNear(lat: Double, lng: Double): Single<List<Venue>> {
+    fun getVenuesNear(lat: Double, lng: Double): Single<Exploration> {
         return api.explore("${formatter.format(lat)},${formatter.format(lng)}")
                 .map { RemoteMapper.toData(it) }
     }

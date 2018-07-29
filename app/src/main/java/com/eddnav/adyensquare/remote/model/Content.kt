@@ -6,4 +6,4 @@ import com.squareup.moshi.JsonClass
  * @author Eduardo Naveda
  */
 @JsonClass(generateAdapter = true)
-data class Content(val groups: List<Groups>)
+data class Content(val suggestedBounds: Bounds, val groups: List<Groups>)

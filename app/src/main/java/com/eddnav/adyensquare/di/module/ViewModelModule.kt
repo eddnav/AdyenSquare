@@ -17,5 +17,4 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ExploreViewModel::class)
     abstract fun exploreViewModel(viewModel: ExploreViewModel): ViewModel
-
 }

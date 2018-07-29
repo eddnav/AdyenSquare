@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.location.Location
 import com.eddnav.adyensquare.data.FoursquareRepository
+import com.eddnav.adyensquare.data.model.Exploration
 import com.eddnav.adyensquare.data.model.Venue
 import com.patloew.rxlocation.RxLocation
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -16,7 +17,7 @@ import javax.inject.Inject
  */
 class ExploreViewModel @Inject constructor(private val foursquareRepository: FoursquareRepository, private val rxLocation: RxLocation) : ViewModel() {
 
-    val venues: MutableLiveData<List<Venue>> = MutableLiveData()
+    val venues: MutableLiveData<Exploration> = MutableLiveData()
 
     private var disposable = CompositeDisposable()
 
@@ -42,12 +43,11 @@ class ExploreViewModel @Inject constructor(private val foursquareRepository: Fou
                     venues.value = it
                 }, {
                     println(it)
-                    // TODO: Show an error, possibly a toast.
+                    // TODO: Log this.
                 }))
     }
 
     fun stopExploring() {
         disposable.clear()
     }
-
 }

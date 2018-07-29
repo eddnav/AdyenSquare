@@ -6,4 +6,4 @@ import com.squareup.moshi.JsonClass
  * @author Eduardo Naveda
  */
 @JsonClass(generateAdapter = true)
-data class Location(val lat: Double, val lng: Double)
+data class Bounds(val ne: LatLng, val sw: LatLng)
