@@ -7,6 +7,7 @@ import com.eddnav.adyensquare.di.module.RemoteModule
 import com.eddnav.adyensquare.di.module.ViewModelModule
 import com.eddnav.adyensquare.di.scope.Application
 import com.eddnav.adyensquare.view.ExploreFragment
+import com.eddnav.adyensquare.view.VenueDetailFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -18,6 +19,8 @@ import dagger.Component
 interface ApplicationComponent {
 
     fun inject(fragment: ExploreFragment)
+
+    fun inject(fragment: VenueDetailFragment)
 
     @Component.Builder
     interface Builder {

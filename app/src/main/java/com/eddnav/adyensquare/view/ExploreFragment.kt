@@ -5,10 +5,10 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,11 +23,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.fragment_explore.*
-import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
@@ -42,28 +39,20 @@ class ExploreFragment : Fragment(), EasyPermissions.PermissionCallbacks, EasyPer
 
     private lateinit var viewModel: ExploreViewModel
 
-    var noPermissionsSnackbar: Snackbar? = null
+    private var noPermissionsSnackbar: Snackbar? = null
 
-    private var param1: String? = null
     private var listener: OnFragmentInteractionListener? = null
+
+    private val venueIds: HashMap<Marker, Venue> = HashMap()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        /*if (context is OnFragmentInteractionListener) {
+        if (context is OnFragmentInteractionListener) {
             listener = context
+            (context.applicationContext as AdyenSquareApplication).applicationComponent.inject(this)
+            viewModel = ViewModelProviders.of(this, viewModelFactory).get(ExploreViewModel::class.java)
         } else {
             throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
-        }*/
-
-        (context.applicationContext as AdyenSquareApplication).applicationComponent.inject(this)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(ExploreViewModel::class.java)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
         }
     }
 
@@ -72,35 +61,46 @@ class ExploreFragment : Fragment(), EasyPermissions.PermissionCallbacks, EasyPer
         val layout = inflater.inflate(R.layout.fragment_explore, container, false)
         val map = layout.findViewById<MapView>(R.id.map)
         map.onCreate(savedInstanceState)
+
         initialize(map)
 
         return layout
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val appCompatActivity = (activity as AppCompatActivity)
+        appCompatActivity.setSupportActionBar(toolbar)
+        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        toolbar.title = getString(R.string.app_name)
+    }
+
     override fun onStart() {
         super.onStart()
-        map.onStart()
+        map?.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        map.onResume()
+        map?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        map.onPause()
+        map?.onPause()
     }
 
     override fun onStop() {
         super.onStop()
-        map.onStop()
+        map?.onStop()
         viewModel.stopExploring()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        map.onDestroy()
+        map?.onDestroy()
     }
 
     override fun onDetach() {
@@ -110,12 +110,36 @@ class ExploreFragment : Fragment(), EasyPermissions.PermissionCallbacks, EasyPer
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        map.onSaveInstanceState(outState)
+        map?.onSaveInstanceState(outState)
+
+        // TODO: should try to save currently selected marker, will need some shuffling.
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        map.onLowMemory()
+        map?.onLowMemory()
+    }
+
+    override fun onMapReady(map: GoogleMap?) {
+        setupMap(map)
+        viewModel.venues.observe(this, Observer {
+            if (it != null) {
+                updateMap(map, it)
+            }
+        })
+        explore()
+    }
+
+    private fun setupMap(map: GoogleMap?) {
+        try {
+            map?.setMinZoomPreference(12.0f)
+            map?.isMyLocationEnabled = true
+            map?.setOnInfoWindowClickListener {
+                listener?.toDetails(venueIds[it]?.id!!, venueIds[it]?.name!!)
+            }
+        } catch (e: SecurityException) {
+            // TODO: Shouldn't ever happen, checked exceptions :/
+        }
     }
 
     /**
@@ -139,31 +163,23 @@ class ExploreFragment : Fragment(), EasyPermissions.PermissionCallbacks, EasyPer
         map?.setLatLngBoundsForCameraTarget(LatLngBounds(LatLng(bounds.sw.lat, bounds.sw.lng), LatLng(bounds.ne.lat, bounds.ne.lng)))
         map?.moveCamera(CameraUpdateFactory.newLatLngBounds(LatLngBounds(LatLng(bounds.sw.lat, bounds.sw.lng), LatLng(bounds.ne.lat, bounds.ne.lng)), 0))
 
+        // TODO: Do some sort of diff instead, to avoid flickering.
+        map?.clear()
         exploration.venues.map {
-            map?.addMarker(createMarkerOptionsForVenue(it))
+            venueIds.put(map?.addMarker(createMarkerOptionsForVenue(it))!!, it)
         }
     }
 
     private fun createMarkerOptionsForVenue(venue: Venue): MarkerOptions {
         return MarkerOptions().apply {
+            this.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE
+            ))
             this.position(LatLng(venue.latLng.lat, venue.latLng.lng))
             this.title(venue.name)
-        }
-    }
-
-    override fun onMapReady(map: GoogleMap?) {
-        try {
-            map?.setMinZoomPreference(12.0f)
-            map?.isMyLocationEnabled = true
-        } catch (e: SecurityException) {
-            // TODO: Shouldn't ever happen, checked exceptions :/
-        }
-        viewModel.venues.observe(this, Observer {
-            if (it != null) {
-                updateMap(map, it)
+            if (venue.address != null) {
+                this.snippet(venue.address)
             }
-        })
-        explore()
+        }
     }
 
     private fun createNoPermissionsSnackbar() {
@@ -206,19 +222,10 @@ class ExploreFragment : Fragment(), EasyPermissions.PermissionCallbacks, EasyPer
     }
 
     interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
+        fun toDetails(venueId: String, venueName: String)
     }
 
     companion object {
-
         private const val EXPLORE_PERMISSIONS = 0
-        private const val ARG_PARAM1 = "param1"
-
-        fun newInstance(param1: String, param2: String) =
-                ExploreFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(ARG_PARAM1, param1)
-                    }
-                }
     }
 }

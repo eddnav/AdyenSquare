@@ -25,8 +25,13 @@ class FoursquareRepository @Inject constructor(private val api: FoursquareServic
     }
 
 
-    fun getVenuesNear(lat: Double, lng: Double): Single<Exploration> {
+    fun getExploration(lat: Double, lng: Double): Single<Exploration> {
         return api.explore("${formatter.format(lat)},${formatter.format(lng)}")
+                .map { RemoteMapper.toData(it) }
+    }
+
+    fun getVenue(id: String): Single<Venue> {
+        return api.getVenue(id)
                 .map { RemoteMapper.toData(it) }
     }
 }

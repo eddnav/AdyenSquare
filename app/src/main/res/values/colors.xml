@@ -3,4 +3,5 @@
     <color name="colorPrimary">#21be58</color>
     <color name="colorPrimaryDark">#199143</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="separator_color">#8C000000</color>
 </resources>

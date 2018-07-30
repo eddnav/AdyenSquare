@@ -1,8 +1,10 @@
 package com.eddnav.adyensquare.remote
 
 import com.eddnav.adyensquare.remote.model.ExploreResponse
+import com.eddnav.adyensquare.remote.model.VenueDetailResponse
 import io.reactivex.Single
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -12,6 +14,9 @@ interface FoursquareService {
 
     @GET("/v2/venues/explore")
     fun explore(@Query("ll") coordinates: String): Single<ExploreResponse>
+
+    @GET("/v2/venues/{id}")
+    fun getVenue(@Path("id") id: String): Single<VenueDetailResponse>
 
     companion object {
         const val BASE_URL = "https://api.foursquare.com"
