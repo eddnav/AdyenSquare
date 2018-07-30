@@ -26,8 +26,8 @@ interface FoursquareService {
         const val CLIENT_SECRET_PARAM = "client_secret"
         const val VERSIONING_PARAM = "v"
 
-        const val CLIENT_ID = "BGOZOCLI24VGS4KHOBKRK2I05IYIOH0QQTD04VYTXZJPZFUV"
-        const val CLIENT_SECRET = "TZTP0VTMGPXO1KLPZKBYV0BL4WOBKESDGYG3DV1N5CHA3YHL"
+        const val CLIENT_ID = "AHQHHHVBIW5AE5B1JS5L11CGIIKEO321ZV4HM1Q5MV5WUENU"
+        const val CLIENT_SECRET = "5IH2HWLOICVK0WO5BSWGZURDTXPWUV5OIR1M5MSXE50QWFHT"
         const val VERSIONING = "20180729" // https://developer.foursquare.com/docs/api/configuration/versioning
     }
 }
