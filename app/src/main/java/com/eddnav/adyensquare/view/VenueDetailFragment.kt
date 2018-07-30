@@ -81,7 +81,14 @@ class VenueDetailFragment : Fragment() {
 
         address.text = venue.address
         likes.text = venue.likes.toString()
-        phone.text = venue.phone
+
+        if (venue.phone != null) {
+            phone.text = venue.phone
+        } else {
+            phone_icon.visibility = View.GONE
+            phone.visibility = View.GONE
+        }
+
         rating.text = venue.rating.toString()
     }
 
